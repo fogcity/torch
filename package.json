@@ -1,0 +1,68 @@
+{
+  "author": "Yanming Xu <xymzhs@gmail.com>",
+  "name": "tstorch",
+  "description": "GPU accelerated package for scientific computing and machine learning with JavaScript",
+  "files": [
+    "dist"
+  ],
+  "keywords": [
+    "ai",
+    "scientific computing",
+    "matrices",
+    "graphics",
+    "vector",
+    "numpy",
+    "classifier",
+    "neural",
+    "network",
+    "machine learning",
+    "synapse",
+    "recurrent",
+    "long short term memory",
+    "gated recurrent unit",
+    "time series",
+    "time step",
+    "prediction",
+    "rnn",
+    "lstm",
+    "gru"
+  ],
+  "main": "./dist/index.umd.js",
+  "module": "./dist/index.es.js",
+  "types": "./dist/index.d.ts",
+  "unpkg": "./dist/index.umd.js",
+  "exports": {
+    ".": {
+      "import": "./dist/index.es.js",
+      "require": "./dist/index.umd.js",
+      "types": "./dist/index.d.ts"
+    },
+    "./dist/*": {
+      "import": "./dist/index.es.js",
+      "require": "./dist/index.umd.js",
+      "types": "./dist/index.d.ts"
+    }
+  },
+  "version": "0.0.1",
+  "scripts": {
+    "dev": "vite",
+    "build": "tsc && vite build",
+    "preview": "vite preview"
+  },
+  "peerdependencies": {
+    "gpu.js": "^2.15.2"
+  },
+  "devDependencies": {
+    "gpu.js": "^2.15.2",
+    "@types/node": "^17.0.23",
+    "@types/react": "^17.0.33",
+    "@types/react-dom": "^17.0.10",
+    "@vitejs/plugin-react": "^1.0.7",
+    "react": "^18.0.0",
+    "react-dom": "^18.0.0",
+    "tslib": "^2.3.1",
+    "typescript": "^4.5.4",
+    "vite": "^2.8.0",
+    "vite-plugin-dts": "^1.0.2"
+  }
+}
