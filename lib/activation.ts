@@ -20,6 +20,7 @@ export class Activation {
     output: (x) => 1 / (1 + Math.exp(-x)),
     der: (x) => {
       let output = Activation.SIGMOID.output(x);
+
       return output * (1 - output);
     },
   };

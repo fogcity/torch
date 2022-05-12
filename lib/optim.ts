@@ -1,76 +1,14 @@
-import { LossFunction } from "./loss";
 import { Node } from "./node";
 import { Regularization } from "./regularization";
-
-class Optimizer {}
-/**
- * Runs a backward propagation using the provided target and the
- * computed output of the previous call to forward propagation.
- * This method modifies the internal state of the network - the loss
- * derivatives with respect to each node, and each weight
- * in the network.
- */
-export function backProp(
-  network: Node[][],
-  target: number,
-  lossFunc: LossFunction
-) {
-  // The output node is a special case. We use the user-defined loss
-  // function for the derivative.
-
-  let outputNode = network[network.length - 1][0];
-
-  outputNode.outputDer = lossFunc.der(outputNode.output, target);
-  // Go through the layers backwards.
-
-  for (let layerIdx = network.length - 1; layerIdx >= 1; layerIdx--) {
-    let currentLayer = network[layerIdx];
-
-    // Compute the loss derivative of each node with respect to:
-    // 1) its total input
-    // 2) each of its input weights.
-
-    // update node:
-
-    for (let i = 0; i < currentLayer.length; i++) {
-      let node = currentLayer[i];
-
-      node.inputDer = node.outputDer * node.activation.der(node.totalInput);
-      node.accInputDer += node.inputDer;
-      node.numAccumulatedDers++;
-    }
-
-    // update links:
-
-    // Loss derivative with respect to each weight coming into the node.
-    for (let i = 0; i < currentLayer.length; i++) {
-      let node = currentLayer[i];
-      for (let j = 0; j < node.inputLinks.length; j++) {
-        let link = node.inputLinks[j];
-        if (link.isDead) {
-          continue;
-        }
-
-        link.lossDer = node.inputDer * link.source.output;
-        link.accLossDer += link.lossDer;
-        link.numAccumulatedDers++;
-      }
-    }
-    if (layerIdx === 1) {
-      continue;
-    }
-    let prevLayer = network[layerIdx - 1];
-
-    for (let i = 0; i < prevLayer.length; i++) {
-      let node = prevLayer[i];
-      // Compute the loss derivative with respect to each node's output.
-      node.outputDer = 0;
-      for (let j = 0; j < node.outputs.length; j++) {
-        let output = node.outputs[j];
-        node.outputDer += output.weight * output.dest.inputDer;
-      }
-    }
+class Optimizer {
+  constructor(public network: Node[][], public lr: number, public rr: number) {}
+  step() {
+    updateWeights(this.network, this.lr, this.rr);
   }
+}
+
+export function sgd(network: Node[][], lr: number, rr: number) {
+  return new Optimizer(network, lr, rr);
 }
 
 /**
@@ -88,6 +26,7 @@ export function updateWeights(
     // Foreach the second layer's node
     for (let i = 0; i < currentLayer.length; i++) {
       let node = currentLayer[i];
+
       // Update the node's bias.
       if (node.numAccumulatedDers > 0) {
         node.bias -=
@@ -95,6 +34,7 @@ export function updateWeights(
         node.accInputDer = 0;
         node.numAccumulatedDers = 0;
       }
+
       // Update the weights coming into this node.
       for (let j = 0; j < node.inputLinks.length; j++) {
         let link = node.inputLinks[j];

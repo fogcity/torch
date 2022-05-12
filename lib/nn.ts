@@ -6,7 +6,7 @@ import { Regularization, RegularizationFunction } from "./regularization";
 /**
  * Builds a neural network.
  *
- * @param networkShape The shape of the network. E.g. [1, 2, 3, 1] means
+ * @param shape The shape of the network. E.g. [1, 2, 3, 1] means
  *   the network will have one input node, 2 nodes in first hidden layer,
  *   3 nodes in second hidden layer nand 1 output node.
  * @param activation The activation function of every hidden node.
@@ -17,22 +17,21 @@ import { Regularization, RegularizationFunction } from "./regularization";
  * @param inputIds List of ids for the input nodes.
  */
 export function buildNetwork(
-  networkShape: number[],
-  activation: ActivationFunction,
+  shape: number[],
+  activation: ActivationFunction = Activation.LINEAR,
   outputActivation: ActivationFunction = Activation.LINEAR,
-  regularization: RegularizationFunction = Regularization.L1,
+  regularization: RegularizationFunction = Regularization.L2,
   initZero?: boolean
 ): Node[][] {
-  let numLayers = networkShape.length;
+  let numLayers = shape.length;
   let id = 1;
   /** List of layers, with each layer being a list of nodes. */
   let network: Node[][] = [];
   for (let layerIdx = 0; layerIdx < numLayers; layerIdx++) {
     let isOutputLayer = layerIdx === numLayers - 1;
-    let isInputLayer = layerIdx === 0;
     let currentLayer: Node[] = [];
     network.push(currentLayer);
-    let numNodes = networkShape[layerIdx];
+    let numNodes = shape[layerIdx];
     for (let i = 0; i < numNodes; i++) {
       let nodeId = id.toString();
       id++;
@@ -68,6 +67,7 @@ export function buildNetwork(
  */
 export function forwardProp(network: Node[][], inputs: number[]): number {
   let inputLayer = network[0];
+  console.log("inputLayer", inputLayer);
 
   if (inputs.length != inputLayer.length) {
     throw new Error(
@@ -96,4 +96,22 @@ export function forwardProp(network: Node[][], inputs: number[]): number {
  */
 export function predict(network: Node[][], target: number[]) {
   return forwardProp(network, target);
+}
+
+/** Iterates over every node in the network/ */
+export function mapNode(network: Node[][], accessor: (node: Node) => any) {
+  return network.slice(1, network.length).map((layer) => layer.map(accessor));
+}
+
+/** Returns the weights in the network. */
+export function getWeights(network: Node[][]) {
+  return network
+    .slice(1, network.length)
+    .map((layer) => layer.map((node) => node.inputLinks.map((v) => v.weight)));
+} /** Returns the bias in the network. */
+
+export function getBias(network: Node[][]) {
+  return network
+    .slice(1, network.length)
+    .map((layer) => layer.map((node) => node.bias));
 }
