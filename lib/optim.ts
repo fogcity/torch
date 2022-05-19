@@ -46,9 +46,8 @@ export function updateWeights(
           : 0;
         if (link.numAccumulatedDers > 0) {
           // Update the weight based on dE/dw.
-          link.weight =
-            link.weight -
-            (learningRate / link.numAccumulatedDers) * link.accLossDer;
+          link.weight -=
+            (learningRate * link.accLossDer) / link.numAccumulatedDers;
           // Further update the weight based on regularization.
           let newLinkWeight =
             link.weight - learningRate * regularizationRate * regulDer;

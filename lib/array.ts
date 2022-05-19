@@ -1,14 +1,11 @@
-export function getAverage(t: number[]) {
-  return (
-    (t as number[]).reduce((previous, current) => (current += previous)) /
-    t.length
-  );
-}
-export function getShape(t: number[] | number[][] | number[][][]) {
+/**
+ * vector element-wise binary operators fn.
+ */
+
+export function size(t: number[] | number[][] | number[][][]) {
   const dim = [];
   for (;;) {
     dim.push(t.length);
-
     if (Array.isArray(t[0])) {
       t = t[0];
     } else {
@@ -17,19 +14,15 @@ export function getShape(t: number[] | number[][] | number[][][]) {
   }
   return dim;
 }
-/**
- * 查找数组深度
- * @param t
- * @returns
- */
-export function getDepth(
+
+export function depth(
   t: number[] | number[][] | number[][][] | number
 ): number {
   return (
     1 +
     (t instanceof Array
       ? (t as number[]).reduce(function (max, item) {
-          return Math.max(max, getDepth(item));
+          return Math.max(max, depth(item));
         }, 0)
       : -1)
   );
@@ -78,6 +71,10 @@ export function argMin(t: number[]) {
   return t.indexOf(Math.min(...t));
 }
 
+export function transpose(input: number[][]) {
+  return input[0].map((_, colIndex) => input.map((row) => row[colIndex]));
+}
+
 export function square(a: number[]) {
   return a.map((v) => v ** 2);
 }
@@ -94,16 +91,25 @@ export function dot(a: number[], b: number[]) {
     return k;
   }, 0);
 }
-export function sub(a: number[], b: number[]) {
-  return a.map((v, i) => v - b[i]);
+/**
+ * Subtracts other, scaled by alpha, from input.
+ * out_i = input _i − alpha×other_i
+ * @param a
+ * @param b
+ * @param alpha
+ * @returns
+ */
+export function sub(a: number[], b: number[], alpha = 1) {
+  return a.map((v, i) => v - alpha * b[i]);
 }
 export function add(a: number[], b: number[]) {
   return a.map((v, i) => v + b[i]);
 }
+
 /**
- * 求加权平均值
+ * Returns the mean value of all elements in the input tensor.
  * @param t
- * @returns
+ * @returns number|number[]|number[][]
  */
 export function mean(t: number[]) {
   return sum(t) / t.length;
@@ -130,7 +136,7 @@ export function randZeroOne() {
   return Math.round(Math.random());
 }
 // 获得高斯分布随机值
-export function randn() {
+export function gusValue() {
   let u = 0,
     v = 0;
   while (u === 0) u = Math.random(); //Converting [0,1) to (0,1)
@@ -138,23 +144,56 @@ export function randn() {
   return Math.sqrt(-2 * Math.log(u)) * Math.cos(2 * Math.PI * v);
 }
 
-/**
- * 计算数组的hadamard乘积
- * @param a 左边的数组
- * @param b 右边的数组
- * @returns 新的数组
- */
+export function randn(size: number[], valueFn = gusValue) {
+  const result = [];
+  switch (size.length) {
+    case 1:
+      for (let i = 0; i < size[0]; i++) {
+        result.push(valueFn());
+      }
+      break;
+    case 2:
+      for (let i = 0; i < size[0]; i++) {
+        const subResult = [];
+        for (let j = 0; j < size[1]; j++) {
+          subResult.push(valueFn());
+        }
+        result.push(subResult);
+      }
+      break;
+    case 3:
+      for (let i = 0; i < size[0]; i++) {
+        const subResult = [];
+        for (let j = 0; j < size[1]; j++) {
+          const subSubResult = [];
+          for (let k = 0; k < size[2]; k++) {
+            subSubResult.push(valueFn());
+          }
+          subResult.push(subSubResult);
+        }
+        result.push(subResult);
+      }
+      break;
+    default:
+      break;
+  }
+
+  return result;
+}
+
 export function hadamard(a: number[], b: number[]) {
-  return a.reduce((r: number[], v, i) => {
-    r.push(b[i] * v);
-    return r;
-  }, []);
+  const r = [];
+  for (let i = 0; i < a.length; i++) {
+    r.push(a[i] * b[i]);
+  }
+  return r;
 }
 
 // 将两个向量转置重组
 export function zip(a: number[], b: number[]) {
-  return a.reduce((s: number[][], v, i) => {
-    s.push([v, b[i]]);
-    return s;
-  }, []);
+  const r = [];
+  for (let i = 0; i < a.length; i++) {
+    r.push([a[i], b[i]]);
+  }
+  return r;
 }

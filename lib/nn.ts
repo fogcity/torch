@@ -6,7 +6,7 @@ import { Regularization, RegularizationFunction } from "./regularization";
 /**
  * Builds a neural network.
  *
- * @param shape The shape of the network. E.g. [1, 2, 3, 1] means
+ * @param size The size of the network. E.g. [1, 2, 3, 1] means
  *   the network will have one input node, 2 nodes in first hidden layer,
  *   3 nodes in second hidden layer nand 1 output node.
  * @param activation The activation function of every hidden node.
@@ -17,13 +17,13 @@ import { Regularization, RegularizationFunction } from "./regularization";
  * @param inputIds List of ids for the input nodes.
  */
 export function buildNetwork(
-  shape: number[],
+  size: number[],
   activation: ActivationFunction = Activation.LINEAR,
   outputActivation: ActivationFunction = Activation.LINEAR,
   regularization: RegularizationFunction = Regularization.L2,
   initZero?: boolean
 ): Node[][] {
-  let numLayers = shape.length;
+  let numLayers = size.length;
   let id = 1;
   /** List of layers, with each layer being a list of nodes. */
   let network: Node[][] = [];
@@ -31,7 +31,7 @@ export function buildNetwork(
     let isOutputLayer = layerIdx === numLayers - 1;
     let currentLayer: Node[] = [];
     network.push(currentLayer);
-    let numNodes = shape[layerIdx];
+    let numNodes = size[layerIdx];
     for (let i = 0; i < numNodes; i++) {
       let nodeId = id.toString();
       id++;

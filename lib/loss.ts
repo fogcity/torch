@@ -134,7 +134,7 @@ export function backProp(
   // Go through the layers backwards.
 
   for (let layerIdx = network.length - 1; layerIdx >= 1; layerIdx--) {
-    let currentLayer = network[layerIdx];
+    const currentLayer = network[layerIdx];
 
     // Compute the loss derivative of each node with respect to:
     // 1) its total input
