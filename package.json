@@ -1,7 +1,7 @@
 {
   "author": "Yanming Xu <xymzhs@gmail.com>",
   "name": "tstorch",
-  "description": "GPU accelerated package for scientific computing and machine learning with JavaScript",
+  "description": "Dynamic tensor computations with automatic differentiation and GPU acceleration with JavaScript",
   "files": [
     "dist"
   ],

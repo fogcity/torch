@@ -2,7 +2,7 @@
  * vector element-wise binary operators fn.
  */
 
-export function size(t: number[] | number[][] | number[][][]) {
+export function getSize(t: number[] | number[][] | number[][][]) {
   const dim = [];
   for (;;) {
     dim.push(t.length);
