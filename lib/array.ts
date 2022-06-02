@@ -102,25 +102,20 @@ export function dot(a: number[], b: number[]) {
 export function sub(a: number[], b: number[], alpha = 1) {
   return a.map((v, i) => v - alpha * b[i]);
 }
-export function add(a: number[], b: number[]) {
-  return a.map((v, i) => v + b[i]);
+export function div(a: number[], b: number[], alpha = 1) {
+  return a.map((v, i) => (v / alpha) * b[i]);
+}
+export function add(a: number[], b: number[], alpha = 1) {
+  return a.map((v, i) => v + alpha * b[i]);
+}
+export function mul(a: number[], b: number[]) {
+  return hadamard(a, b);
 }
 
-/**
- * Returns the mean value of all elements in the input tensor.
- * @param t
- * @returns number|number[]|number[][]
- */
 export function mean(t: number[]) {
   return sum(t) / t.length;
 }
-/**
- * 生成数组
- * @param stop 直到哪个数
- * @param start 从哪个数开始
- * @param step 步长
- * @returns
- */
+
 export function range(stop: number, start: number = 0, step: number = 1) {
   const ra: number[] = [];
   for (let i = start; i < stop; i += step) {
