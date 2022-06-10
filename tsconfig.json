@@ -4,6 +4,7 @@
     "allowSyntheticDefaultImports": true,
     "checkJs": false,
     "esModuleInterop": true,
+    "types": ["vite/client", "@webgpu/types"],
     // "declaration": true,
     // "emitDeclarationOnly": true,
     // "declarationMap": true,
@@ -15,8 +16,8 @@
     "rootDir": "./",
     "skipLibCheck": true,
     "strict": true,
-    "target": "es2018", // To match node 10: https://github.com/microsoft/TypeScript/wiki/Node-Target-Mapping#node-10
+    "target": "es2018",
     "lib": ["es2019", "es2019.Array", "dom", "esnext"]
   },
-  "include": ["lib"]
+  "include": ["lib/.d.ts", "lib"]
 }
