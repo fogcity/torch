@@ -1,5 +1,3 @@
-// import computeShaderCode from "./shaders/compute.wgsl";
-
 (async () => {
   if (!("gpu" in navigator)) {
     console.log(
@@ -18,9 +16,7 @@
   // First Matrix
 
   const firstMatrix = new Float32Array([
-    2 /* rows */,
-    4 /* columns */,
-    ...new Array(8).fill(2),
+    2 /* rows */, 4 /* columns */, 1, 2, 3, 4, 5, 6, 7, 8,
   ]);
 
   const gpuBufferFirstMatrix = device.createBuffer({
@@ -35,9 +31,7 @@
   // Second Matrix
 
   const secondMatrix = new Float32Array([
-    4 /* rows */,
-    2 /* columns */,
-    ...new Array(8).fill(2),
+    4 /* rows */, 2 /* columns */, 1, 2, 3, 4, 5, 6, 7, 8,
   ]);
 
   const gpuBufferSecondMatrix = device.createBuffer({
@@ -61,35 +55,37 @@
   // Compute shader code
 
   const shaderModule = device.createShaderModule({
-    code: `struct Matrix {
-      size: vec2<f32>,
+    code: `
+    struct Matrix {
+      size : vec2<f32>,
       numbers: array<f32>,
     }
-    
+
     @group(0) @binding(0) var<storage, read> firstMatrix : Matrix;
     @group(0) @binding(1) var<storage, read> secondMatrix : Matrix;
     @group(0) @binding(2) var<storage, write> resultMatrix : Matrix;
-    
+
     @stage(compute) @workgroup_size(8, 8)
-    fn main(@builtin(global_invocation_id) global_id: vec3<u32>) {
-            // Guard against out-of-bounds work group sizes
-        if (global_id.x >= u32(firstMatrix.size.x) || global_id.y >= u32(secondMatrix.size.y)) {
-            return;
-        }
-    
-        resultMatrix.size = vec2(firstMatrix.size.x, secondMatrix.size.y);
-        let r = 0;
-        let resultCell = vec2(global_id.x, global_id.y);
-        var result = 0.0;
-        for (var i = 0u; i < u32(firstMatrix.size.y); i = i + 1u) {
-            let a = i + resultCell.x * u32(firstMatrix.size.y);
-            let b = resultCell.y + i * u32(secondMatrix.size.y);
-            result = result + firstMatrix.numbers[a] * secondMatrix.numbers[b];
-        }
-    
-        let index = resultCell.y + resultCell.x * u32(secondMatrix.size.y);
-        resultMatrix.numbers[index] = result;
-    }`,
+    fn main(@builtin(global_invocation_id) global_id : vec3<u32>) {
+      // Guard against out-of-bounds work group sizes
+      if (global_id.x >= u32(firstMatrix.size.x) || global_id.y >= u32(secondMatrix.size.y)) {
+        return;
+      }
+
+      resultMatrix.size = vec2(firstMatrix.size.x, secondMatrix.size.y);
+
+      let resultCell = vec2(global_id.x, global_id.y);
+      var result = 0.0;
+      for (var i = 0u; i < u32(firstMatrix.size.y); i = i + 1u) {
+        let a = i + resultCell.x * u32(firstMatrix.size.y);
+        let b = resultCell.y + i * u32(secondMatrix.size.y);
+        result = result + firstMatrix.numbers[a] * secondMatrix.numbers[b];
+      }
+
+      let index = resultCell.y + resultCell.x * u32(secondMatrix.size.y);
+      resultMatrix.numbers[index] = result;
+    }
+    `,
   });
 
   // Pipeline setup
