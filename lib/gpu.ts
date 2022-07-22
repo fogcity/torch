@@ -23,7 +23,7 @@ import co from "./shaders/compute.wgsl?raw";
   const gpuBufferFirstMatrix = device.createBuffer({
     mappedAtCreation: true,
     size: firstMatrix.byteLength,
-    usage: GPUBufferUsage.STORAGE | GPUBufferUsage.COPY_DST,
+    usage: GPUBufferUsage.STORAGE,
   });
 
   new Float32Array(gpuBufferFirstMatrix.getMappedRange()).set(firstMatrix);
@@ -38,7 +38,7 @@ import co from "./shaders/compute.wgsl?raw";
   const gpuBufferSecondMatrix = device.createBuffer({
     mappedAtCreation: true,
     size: secondMatrix.byteLength,
-    usage: GPUBufferUsage.STORAGE | GPUBufferUsage.COPY_DST,
+    usage: GPUBufferUsage.STORAGE,
   });
 
   new Float32Array(gpuBufferSecondMatrix.getMappedRange()).set(secondMatrix);
@@ -46,34 +46,31 @@ import co from "./shaders/compute.wgsl?raw";
 
   // Result Matrix
 
-  const resultMatrixBufferSize =
+  console.log("Float32Array.BYTES_PER_ELEMENT", Float32Array.BYTES_PER_ELEMENT);
+
+  const gpuBufferResultMatrixBufferSize =
     Float32Array.BYTES_PER_ELEMENT * (2 + firstMatrix[0] * secondMatrix[1]);
+  console.log(gpuBufferResultMatrixBufferSize);
 
-  const resultMatrixBuffer = device.createBuffer({
-    size:
-      Float32Array.BYTES_PER_ELEMENT * (2 + firstMatrix[0] * secondMatrix[1]),
-    usage: GPUBufferUsage.MAP_WRITE | GPUBufferUsage.COPY_SRC,
-  });
-
-  // Compute shader code
-
-  const shaderModule = device.createShaderModule({
-    code: co,
+  const gpuBufferResultMatrixBuffer = device.createBuffer({
+    size: gpuBufferResultMatrixBufferSize,
+    usage: GPUBufferUsage.STORAGE | GPUBufferUsage.COPY_SRC,
   });
 
   // Pipeline setup
-
-  const computePipeline = device.createComputePipeline({
+  const computePipeline = await device.createComputePipelineAsync({
+    layout: "auto",
     compute: {
-      module: shaderModule,
+      module: device.createShaderModule({
+        code: co,
+      }),
       entryPoint: "main",
     },
-  } as GPUComputePipelineDescriptor);
+  });
 
   // Bind group
-
   const bindGroup = device.createBindGroup({
-    layout: computePipeline.getBindGroupLayout(0 /* index */),
+    layout: computePipeline.getBindGroupLayout(0),
     entries: [
       {
         binding: 0,
@@ -90,7 +87,7 @@ import co from "./shaders/compute.wgsl?raw";
       {
         binding: 2,
         resource: {
-          buffer: resultMatrixBuffer,
+          buffer: gpuBufferResultMatrixBuffer,
         },
       },
     ],
@@ -110,25 +107,24 @@ import co from "./shaders/compute.wgsl?raw";
 
   // Get a GPU buffer for reading in an unmapped state.
   const gpuReadBuffer = device.createBuffer({
-    size: resultMatrixBufferSize,
+    size: gpuBufferResultMatrixBufferSize,
     usage: GPUBufferUsage.COPY_DST | GPUBufferUsage.MAP_READ,
   });
 
   // Encode commands for copying buffer to buffer.
   commandEncoder.copyBufferToBuffer(
-    resultMatrixBuffer /* source buffer */,
-    0 /* source offset */,
-    gpuReadBuffer /* destination buffer */,
-    0 /* destination offset */,
-    resultMatrixBufferSize /* size */
+    gpuBufferResultMatrixBuffer,
+    0,
+    gpuReadBuffer,
+    0,
+    gpuBufferResultMatrixBufferSize
   );
 
   // Submit GPU commands.
-  const gpuCommands = commandEncoder.finish();
-  device.queue.submit([gpuCommands]);
+  device.queue.submit([commandEncoder.finish()]);
 
   // Read buffer.
   await gpuReadBuffer.mapAsync(GPUMapMode.READ);
   const arrayBuffer = gpuReadBuffer.getMappedRange();
-  console.log([...new Float32Array(arrayBuffer.slice(0))]);
+  console.log(new Float32Array(arrayBuffer.slice(0)));
 })();
