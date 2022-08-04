@@ -1,4 +1,4 @@
-import { Tensor } from "./tensor";
+import { tensor } from "./tensor";
 import { GPU, IKernelFunctionThis } from "gpu.js";
 
 /**

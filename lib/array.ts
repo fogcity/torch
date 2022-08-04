@@ -63,6 +63,7 @@ export function shuffle(array: number[]) {
 export function abs(t: number[]) {
   return t.map((v) => Math.abs(v));
 }
+
 export function exp(t: number[]) {
   return t.map((v) => Math.exp(v));
 }

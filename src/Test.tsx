@@ -1,4 +1,4 @@
-import { useEffect } from "react";
+import React, { useEffect } from "react";
 import "../lib/gpu";
 // import { add, dot, randn } from "../lib/array";
 // import { linear } from "../lib/layer";
